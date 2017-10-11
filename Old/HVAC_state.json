@@ -1,0 +1,7 @@
+{
+	"HVAC": {
+		"heat": true,
+		"cool": false,
+		"fan": true
+	}
+}

@@ -1,0 +1,47 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2017-05-06T23:44:38Z",
+    "title": "testAPI"
+  },
+  "host": "qrdr3yk7s4.execute-api.us-west-2.amazonaws.com",
+  "basePath": "/testStage",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/hvac/{hvacID}": {
+      "get": {
+        "description": "Get the state of the virtual HVAC controller in JSON format.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "hvacID",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "schema": {
+              "$ref": "#/definitions/Empty"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Empty": {
+      "type": "object",
+      "title": "Empty Schema"
+    }
+  }
+}

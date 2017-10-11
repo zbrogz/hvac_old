@@ -1,0 +1,111 @@
+---
+swagger: "2.0"
+info:
+  version: "2017-05-07T01:11:29Z"
+  title: "Thermostat"
+host: "qrdr3yk7s4.execute-api.us-west-2.amazonaws.com"
+basePath: "/testStage"
+schemes:
+- "https"
+paths:
+  /hvac/{hvacID}:
+    get:
+      description: "Get the state of the virtual HVAC controller in JSON format. This\
+        \ is called by the physcial hvac controller."
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "hvacID"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+      x-amazon-apigateway-integration:
+        credentials: "arn:aws:iam::779569395696:role/hvacTableAccess"
+        responses:
+          default:
+            statusCode: "200"
+            responseTemplates:
+              application/json: "#set($inputRoot = $input.path('$'))\n#foreach($elem\
+                \ in $inputRoot.Items) {\n            \"heater\": \"$elem.heater.S\"\
+                ,\n            \"ac\": \"$elem.ac.S\",\n            \"fan\": \"$elem.fan.S\"\
+                ,\n            \"off_time\": \"$elem.off_time.N\"\n}#if($foreach.hasNext),#end\n\
+                #end"
+        requestTemplates:
+          application/json: "{\n    \"TableName\": \"hvac\",\n    \"KeyConditionExpression\"\
+            : \"hvacID = :v1\",\n    \"ExpressionAttributeValues\": {\n        \"\
+            :v1\": {\n            \"S\": \"$input.params('hvacID')\"\n        }\n\
+            \    }\n}"
+        uri: "arn:aws:apigateway:us-west-2:dynamodb:action/Query"
+        passthroughBehavior: "when_no_templates"
+        httpMethod: "POST"
+        type: "aws"
+  /temperatureSensor/{sensorID}:
+    post:
+      description: "Updates the current temperature of the virtual sensor. This method\
+        \ is called by the physical sensor."
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "sensorID"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+      x-amazon-apigateway-integration:
+        responses:
+          default:
+            statusCode: "200"
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_match"
+        type: "mock"
+definitions:
+  Empty:
+    type: "object"
+    title: "Empty Schema"
+x-amazon-apigateway-documentation:
+  version: "2"
+  createdDate: "2017-05-07T01:12:06Z"
+  documentationParts:
+  - location:
+      type: "API"
+    properties:
+      description: "Thermostat API"
+  - location:
+      type: "METHOD"
+      path: "/hvac/{hvacID}"
+      method: "GET"
+    properties:
+      description: "Get the state of the virtual HVAC controller in JSON format. This\
+        \ is called by the physcial hvac controller."
+  - location:
+      type: "METHOD"
+      path: "/temperatureSensor/{sensorID}"
+      method: "POST"
+    properties:
+      description: "Updates the current temperature of the virtual sensor. This method\
+        \ is called by the physical sensor."
+  - location:
+      type: "RESOURCE"
+      path: "/hvac/{hvacID}"
+    properties:
+      description: "The virtual HVAC Controller. It's state is represented by the\
+        \ heater, ac, fan, and off_time."
+  - location:
+      type: "RESOURCE"
+      path: "/temperatureSensor/{sensorID}"
+    properties:
+      description: "A virtual temperature sensor."
